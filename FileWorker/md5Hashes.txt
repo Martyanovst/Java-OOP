@@ -1,0 +1,25 @@
+folder\qwerty.txt : �Jc�KY�3w2�u`��
+folder\test1\1.txt : w38�����2^�8
+folder\test1\2.txt : C�E*���AI�����
+folder\test1\3.txt : ˜�J�9"4m�8J��
+folder\test2\4.txt : +�����������
+folder\qwerty.txt : �Jc�KY�3w2�u`��
+folder\test1\1.txt : w38�����2^�8
+folder\test1\2.txt : C�E*���AI�����
+folder\test1\3.txt : ˜�J�9"4m�8J��
+folder\test2\4.txt : +�����������
+folder\qwerty.txt : d54a63964b590891337732eb7560e4e6
+folder\test1\1.txt : 773338d1f41dfa9ee4325ef216133812
+folder\test1\2.txt : 43f1452ace7fa6038f4149fcaef58ccf
+folder\test1\3.txt : cb9cedb34ad13922346d8c381c4a83eb
+folder\test2\4.txt : 2bd7d00cffa3f8f6a91ccdc1118114b1
+folder\qwerty.txt : d54a63964b590891337732eb7560e4e6
+folder\test1\1.txt : 773338d1f41dfa9ee4325ef216133812
+folder\test1\2.txt : 43f1452ace7fa6038f4149fcaef58ccf
+folder\test1\3.txt : cb9cedb34ad13922346d8c381c4a83eb
+folder\test2\4.txt : 2bd7d00cffa3f8f6a91ccdc1118114b1
+folder\qwerty.txt : d54a63964b590891337732eb7560e4e6
+folder\test1\1.txt : 773338d1f41dfa9ee4325ef216133812
+folder\test1\2.txt : 43f1452ace7fa6038f4149fcaef58ccf
+folder\test1\3.txt : cb9cedb34ad13922346d8c381c4a83eb
+folder\test2\4.txt : 2bd7d00cffa3f8f6a91ccdc1118114b1
