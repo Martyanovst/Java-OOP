@@ -1,7 +1,5 @@
 package FileWorker;
 
-import FileWorker.IExecutable;
-
 import java.io.*;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -14,18 +12,18 @@ public class Md5Executor implements IExecutable {
 
     @Override
     public void process(File file) throws IOException {
-        byte[] hash;
+        String hash;
         hash = file.isDirectory() ? getHashOfTheDirectory(file) : getHashOfFile(file);
         WriteHashToOutputFile(file, hash);
     }
 
-    private byte[] getHashOfTheDirectory(File file) throws IOException {
+    private String getHashOfTheDirectory(File file) throws IOException {
         File[] files = file.listFiles();
         StringBuilder builder = new StringBuilder();
-        if (files == null) return new byte[0];
+        if (files == null) return "";
         for (File f : files) {
-            byte[] hash = getHashOfFile(f);
-            builder.append(new String(hash, charset));
+            String hash = getHashOfFile(f);
+            builder.append(hash);
             WriteHashToOutputFile(f, hash);
         }
         return GetHashOfString(builder.toString());
@@ -40,14 +38,14 @@ public class Md5Executor implements IExecutable {
         return null;
     }
 
-    private byte[] GetHashOfString(String input) {
+    private String GetHashOfString(String input) {
         MessageDigest m = getInstance();
         byte[] data = input.getBytes();
         m.update(data, 0, data.length);
-        return m.digest();
+        return hex(m.digest());
     }
 
-     public byte[] getHashOfFile(File file) throws IOException {
+    public String getHashOfFile(File file) throws IOException {
         MessageDigest md = getInstance();
         byte[] buffer = new byte[8192];
         try (InputStream input = new FileInputStream(file)) {
@@ -59,10 +57,10 @@ public class Md5Executor implements IExecutable {
                 }
             } while (numRead != -1);
         }
-        return md.digest();
+        return hex(md.digest());
     }
 
-    private String Hex(byte[] hash) {
+    private String hex(byte[] hash) {
         StringBuilder builder = new StringBuilder();
         for (byte b : hash) {
             builder.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
@@ -70,12 +68,11 @@ public class Md5Executor implements IExecutable {
         return builder.toString();
     }
 
-    private void WriteHashToOutputFile(File path, byte[] hash) throws IOException {
-        String result = Hex(hash);
+    private void WriteHashToOutputFile(File path, String hash) throws IOException {
         try (FileWriter writer = new FileWriter(output, true);
              BufferedWriter bufferedWriter = new BufferedWriter(writer);
              PrintWriter out = new PrintWriter(bufferedWriter)) {
-            out.println(path.getPath() + " : " + result);
+            out.println(path.getPath() + " : " + hash);
         }
     }
 }

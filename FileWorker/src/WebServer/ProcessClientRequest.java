@@ -16,6 +16,7 @@ public class ProcessClientRequest extends ThreadedTask {
     private static final String EOF = "\r\n.\r\n";
     private static final String separator = System.lineSeparator();
     private static final Charset charset = Charset.forName("UTF-8");
+    private static final Md5Executor hasher = new Md5Executor();
 
     ProcessClientRequest(Socket socket) throws FileNotFoundException {
         this.socket = socket;
@@ -38,7 +39,7 @@ public class ProcessClientRequest extends ThreadedTask {
         if (!file.exists()) return "This file doesn't exists";
         StringBuilder builder = new StringBuilder();
         try {
-            builder.append(new String(new Md5Executor().getHashOfFile(file), charset));
+            builder.append(hasher.getHashOfFile(file));
         } catch (IOException e) {
             return "This file doesn't exists";
         }
@@ -64,9 +65,9 @@ public class ProcessClientRequest extends ThreadedTask {
     public void run() {
         try (InputStream reader = socket.getInputStream();
              OutputStream writer = socket.getOutputStream()) {
-            while (true) {
+            while (!socket.isClosed()) {
                 byte[] buffer = new byte[1024];
-                reader.read(buffer,0,buffer.length);
+                reader.read(buffer, 0, buffer.length);
                 String request = getMessageBody(new String(buffer, charset));
                 if (request == null) break;
                 String response = toMessage(createResponse(request));
@@ -77,11 +78,11 @@ public class ProcessClientRequest extends ThreadedTask {
         }
     }
 
-    private static String getMessageBody(String message){
-        return message.replace(EOF,"").trim();
+    private static String getMessageBody(String message) {
+        return message.replace(EOF, "").trim();
     }
 
-    private static String toMessage(String message){
+    private static String toMessage(String message) {
         return message + EOF;
     }
 
