@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.charset.Charset;
 
-import static Utils.SocketUtils.*;
+import static Utils.ClientUtils.*;
 
 public class Server {
     public static final int PORT = 10000;

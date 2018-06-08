@@ -16,7 +16,6 @@ import static Utils.Constants.EOF;
 
 public class Client {
     private static Charset charset = Server.CHARSET;
-    private static ICommandProvider commandProvider = new ConsoleProvider();
 
 
     public static void main(String[] args) throws IOException {
@@ -25,6 +24,7 @@ public class Client {
         byte[] buffer = new byte[1024];
         try (InputStream sin = client.getInputStream();
              OutputStream sout = client.getOutputStream()) {
+            ICommandProvider commandProvider = new ConsoleProvider(System.in);
             while (!client.isClosed()) {
                 byte[] input = (commandProvider.readCommand() + EOF).getBytes();
                 sout.write(input, 0, input.length);
@@ -34,7 +34,6 @@ public class Client {
                     int index = str.indexOf(EOF);
                     builder.append(index >= 0 ? str.substring(0, index + EOF.length()) : str);
                 }
-                commandProvider.writeResult(builder.toString());
                 builder = new StringBuilder();
             }
         }

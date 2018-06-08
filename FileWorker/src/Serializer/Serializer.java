@@ -1,11 +1,15 @@
 package Serializer;
 
 
+import Utils.Constants;
+
 import java.lang.reflect.*;
 import java.nio.charset.Charset;
 import java.util.*;
 
-public class Serializer<T> {
+import static Utils.Constants.EOF;
+
+public class Serializer {
     private Map<ObjectIdentifier, String> objectsProcessed;
     private Map<String, String> objectsData;
     private Map<String, Object> objectsProccessedDeserialize;
@@ -42,20 +46,21 @@ public class Serializer<T> {
         objectsProcessed = new HashMap<>();
         StringBuilder builder = new StringBuilder();
         String result = getObjectSerialization(object);
-        for (String line : result.split(lineSeparator)) {
+        for (String line : result.split(lineSeparator))
             builder.append("main").append(fieldSeparator).append(line).append(lineSeparator);
-        }
+
         builder.append(lineSeparator);
         for (ObjectIdentifier key : new TreeSet<>(objectsProcessed.keySet())) {
             String objectData = objectsProcessed.get(key);
             if (objectData != null)
-                for (String line : objectData.split(lineSeparator)) {
+                for (String line : objectData.split(lineSeparator))
                     builder.append(key).append(fieldSeparator).append(line).append(lineSeparator);
-                }
+
             else
                 builder.append(key).append(fieldSeparator).append("null").append(lineSeparator);
             builder.append(lineSeparator);
         }
+        builder.append(EOF);
         return builder.toString().getBytes(charset);
     }
 
@@ -69,6 +74,7 @@ public class Serializer<T> {
             builder.append(clazz.toString().split(" ")[1]);
         builder.append(lineSeparator);
         for (Field field : getFields(clazz)) {
+            if (Modifier.isStatic(field.getModifiers()) || field.getName().startsWith("class$")) continue;
             try {
                 field.setAccessible(true);
                 Class type = field.getType();
@@ -93,7 +99,7 @@ public class Serializer<T> {
                     ObjectIdentifier id = new ObjectIdentifier(obj);
                     Object value = field.get(object);
                     if (value == null) {
-                        builder.append(id).append(lineSeparator);
+                        builder.append("null").append(lineSeparator);
                         objectsProcessed.put(id, null);
                     } else {
                         builder.append(id).append(lineSeparator);
@@ -106,13 +112,30 @@ public class Serializer<T> {
         return builder.toString();
     }
 
+    private String serializeByteArray(Object object, int arrayLength) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < arrayLength; i++)
+            builder.append((char) Array.getByte(object, i));
+        return builder.toString();
+    }
+
     private String serializeArray(Object object) {
         if (object == null) return null;
         StringBuilder builder = new StringBuilder();
         Class type = object.getClass().getComponentType();
-        builder.append(type.toString().split(" ")[1]);
+//        builder.append(type.toString().split(" ")[1]);
+
+        if (type.equals(Byte.TYPE)) {
+            builder.append("java.lang.Byte");
+            int length = Array.getLength(object);
+            builder.append(fieldSeparator).append(length).append(fieldSeparator);
+            builder.append(serializeByteArray(object, length)).append(lineSeparator);
+            return builder.toString();
+        }
+        builder.append(type.toString());
         int length = Array.getLength(object);
-        builder.append(fieldSeparator).append(length).append(lineSeparator);
+        builder.append(fieldSeparator).append(length).append(fieldSeparator);
+        builder.append(lineSeparator);
         for (int i = 0; i < length; i++) {
             builder.append(i).append(fieldSeparator);
             if (type.equals(Integer.TYPE)) {
@@ -167,34 +190,32 @@ public class Serializer<T> {
         return classFields;
     }
 
-    public T deserialize(byte[] raw) {
-        System.out.println(new String(raw, charset));
+    public Object deserialize(byte[] raw) {
         objectsProccessedDeserialize = new HashMap<>();
         objectsData = new HashMap<>();
         String data = new String(raw, charset);
         String[] objectsRawData = data.split(lineSeparator + lineSeparator);
         getObjectsKeys(objectsRawData);
-        return (T) restoreObject(objectsRawData[0]);
+        return restoreObject(objectsRawData[0]);
     }
 
-    //TODO выделить метод по сериализации объекта
+
     private Object restoreObject(String objectData) {
         String[] lines = objectData.split(lineSeparator);
-        String[] splitted = lines[0].split(fieldSeparator);
+        String[] splited = lines[0].split(fieldSeparator);
         Object obj = null;
-        String classData = splitted[1];
+        String classData = splited[1];
         if (classData.equals("null")) return null;
         try {
             Class cls = Class.forName(classData);
             if (lines[0].startsWith(arrayIdentifier)) {
                 obj = restoreArrayObject(objectData);
             } else {
-                if (cls.equals(String.class)) return splitted[2];
+                if (cls.equals(String.class)) return splited[2];
                 Constructor constructor = cls.getDeclaredConstructor();
                 try {
                     constructor.setAccessible(true);
-                } catch (SecurityException ex) {
-                    System.out.println("Security exception / Ошибка безопасности:" + ex.getMessage());
+                } catch (SecurityException ignored) {
                 }
                 obj = constructor.newInstance();
                 for (String line : Arrays.copyOfRange(lines, 1, lines.length)) {
@@ -203,16 +224,22 @@ public class Serializer<T> {
                     String type = fieldData[1];
                     String name = fieldData[2];
                     String value = fieldData[3];
-                    Field field = cls.getDeclaredField(name);
+                    Field field;
+                    try {
+                        field = cls.getField(name);
+                    } catch (NoSuchFieldException e) {
+                        field = cls.getDeclaredField(name);
+                    }
                     setValue(field, value, obj, id);
                 }
+                objectsProccessedDeserialize.put(splited[0], obj);
+                return obj;
             }
         } catch (IllegalAccessException | ClassNotFoundException |
                 InstantiationException | NoSuchMethodException |
                 InvocationTargetException | NoSuchFieldException ignored) {
-            //ignore
+            //ignored;
         }
-        objectsProccessedDeserialize.put(splitted[0], obj);
         return obj;
     }
 
@@ -220,8 +247,7 @@ public class Serializer<T> {
         Class fieldType = field.getType();
         try {
             field.setAccessible(true);
-        } catch (SecurityException ex) {
-            System.out.println("Security exception / Ошибка безопасности:" + ex.getMessage());
+        } catch (SecurityException ignored) {
         }
         try {
             if (objectsProccessedDeserialize.containsKey(value)) {
@@ -270,13 +296,17 @@ public class Serializer<T> {
         String[] metaData = lines[0].split(fieldSeparator);
 
         Class componentType = Class.forName(metaData[1]);
+
         int length = Integer.parseInt(metaData[2]);
         Object array = Array.newInstance(componentType, length);
-        for (int i = 0; i < length; i++) {
-            String[] meta = lines[i + 1].split(fieldSeparator);
-            Object value = restoreObject(objectsData.get(meta[2]));
-            Array.set(array, i, value);
-        }
+        if (!componentType.toString().equals("class java.lang.Byte"))
+            for (int i = 0; i < length; i++) {
+                String[] meta = lines[i + 1].split(fieldSeparator);
+                Object value = restoreObject(objectsData.get(meta[2]));
+                Array.set(array, i, value);
+            }
+        else
+            return metaData[3].getBytes(Constants.CHARSET);
         return array;
     }
 }

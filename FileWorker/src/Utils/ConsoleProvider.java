@@ -1,18 +1,23 @@
 package Utils;
 
+import Abstractions.ICommand;
 import Abstractions.ICommandProvider;
+import VCS.Client.CommandFactory;
 
-import java.util.Scanner;
+import java.io.*;
 
 public class ConsoleProvider implements ICommandProvider {
-    private final Scanner scanner = new Scanner(System.in);
-    @Override
-    public String readCommand() {
-        return scanner.nextLine();
+    private final BufferedReader in;
+
+    public ConsoleProvider(InputStream in) {
+        this.in = new BufferedReader(new InputStreamReader(in));
     }
 
     @Override
-    public void writeResult(String result) {
-        System.out.println(result);
+    public ICommand readCommand() throws IOException {
+        String input = in.readLine();
+        return CommandFactory.createInstance(input);
     }
+
+
 }

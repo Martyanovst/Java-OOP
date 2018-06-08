@@ -1,7 +1,9 @@
 package Abstractions;
 
-public interface ICommandProvider {
-    String readCommand();
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-    void writeResult(String result);
+public interface ICommandProvider {
+    ICommand readCommand() throws IOException;
 }

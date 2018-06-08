@@ -4,13 +4,13 @@ public class Packet {
     int id;
     double value;
     String text;
-    String[] array;
+    byte[] array;
     Packet packet;
 
-    public Packet(){
+    public Packet() {
     }
 
-    public Packet(int id, double value, String text,Packet packet,String[] array) {
+    public Packet(int id, double value, String text, Packet packet, byte[] array) {
         this.id = id;
         this.value = value;
         this.text = text;

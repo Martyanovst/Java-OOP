@@ -1,5 +1,7 @@
 package Abstractions;
 
+import VCS.Server.FileManager;
+
 public interface ICommand {
-    ICommandPacket execute();
+    CommandPacket execute(FileManager provider);
 }
