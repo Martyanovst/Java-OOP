@@ -8,14 +8,10 @@ import Utils.FileItem;
 
 public class ServerResponse extends CommandPacket {
 
-    public ServerResponse(Boolean isSuccess, ICommand command, FileItem[] items, String message) {
-        super(isSuccess, command, Constants.HOST, message, items);
+    public ServerResponse() {
     }
 
     public ServerResponse(Boolean isSuccess, ICommand command, String message) {
-        super(isSuccess, command, Constants.HOST, message, null);
-    }
-
-    private ServerResponse() {
+        super(isSuccess, command, Constants.HOST, message);
     }
 }

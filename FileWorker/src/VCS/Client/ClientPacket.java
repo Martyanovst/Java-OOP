@@ -5,9 +5,8 @@ import Abstractions.ICommand;
 
 public class ClientPacket extends CommandPacket {
     public ClientPacket(ICommand command, String clientName) {
-        super(true, command, clientName, null, null);
+        super(true, command, clientName,  null);
     }
 
-    public ClientPacket() {
-    }
+    public ClientPacket(){}
 }

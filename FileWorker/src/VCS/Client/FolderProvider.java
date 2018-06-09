@@ -2,15 +2,15 @@ package VCS.Client;
 
 import Abstractions.IDataProvider;
 import Abstractions.ILogger;
-import Utils.Constants;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 
 public class FolderProvider implements IDataProvider {
     private final ILogger logger;
@@ -45,6 +45,11 @@ public class FolderProvider implements IDataProvider {
                 result.add(subdirectory.getName());
         }
         return result.toArray(new String[result.size()]);
+    }
+
+    @Override
+    public void deleteAllFilesFromDirectory(String path) {
+        Arrays.stream(new File(path).listFiles()).forEach(File::delete);
     }
 
     @Override

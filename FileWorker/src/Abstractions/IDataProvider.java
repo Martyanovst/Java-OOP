@@ -13,5 +13,7 @@ public interface IDataProvider {
 
     String[] getAllDirectoriesFrom(String path) throws FileNotFoundException;
 
+    void deleteAllFilesFromDirectory(String path) throws IOException;
+
     ILogger log();
 }

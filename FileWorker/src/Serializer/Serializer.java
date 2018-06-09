@@ -129,7 +129,7 @@ public class Serializer {
             builder.append("java.lang.Byte");
             int length = Array.getLength(object);
             builder.append(fieldSeparator).append(length).append(fieldSeparator);
-            builder.append(serializeByteArray(object, length)).append(lineSeparator);
+            builder.append(serializeByteArray(object, length)).append(lineSeparator).append(lineSeparator);
             return builder.toString();
         }
         builder.append(type.toString());

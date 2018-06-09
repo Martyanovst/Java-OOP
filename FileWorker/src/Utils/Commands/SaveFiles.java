@@ -19,6 +19,12 @@ public class SaveFiles implements ICommand {
 
     @Override
     public CommandPacket execute(FileManager manager) {
+        try {
+            manager.provider.deleteAllFilesFromDirectory(path);
+        } catch (IOException e) {
+            manager.provider.log().Fatal(e.toString());
+            return null;
+        }
         for (FileItem item : files)
             try {
                 manager.provider.CreateFile(Paths.get(path, item.name).toString(), item.data);
