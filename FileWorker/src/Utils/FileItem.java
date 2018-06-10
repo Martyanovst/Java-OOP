@@ -3,12 +3,14 @@ package Utils;
 public class FileItem {
     public String name;
     public byte[] data;
+    public boolean isDirectory;
 
-    public FileItem(String name, byte[] data) {
+    public FileItem(String name, boolean isDirectory, byte[] data) {
         this.name = name;
         this.data = data;
+        this.isDirectory = isDirectory;
     }
 
-    private FileItem() {
+    public FileItem() {
     }
 }

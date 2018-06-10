@@ -2,11 +2,13 @@ package Serializer;
 
 
 import Utils.Constants;
+import Utils.FileItem;
 
 import java.lang.reflect.*;
 import java.nio.charset.Charset;
 import java.util.*;
 
+import static Utils.Constants.*;
 import static Utils.Constants.EOF;
 
 public class Serializer {
@@ -123,7 +125,6 @@ public class Serializer {
         if (object == null) return null;
         StringBuilder builder = new StringBuilder();
         Class type = object.getClass().getComponentType();
-//        builder.append(type.toString().split(" ")[1]);
 
         if (type.equals(Byte.TYPE)) {
             builder.append("java.lang.Byte");
@@ -132,7 +133,7 @@ public class Serializer {
             builder.append(serializeByteArray(object, length)).append(lineSeparator).append(lineSeparator);
             return builder.toString();
         }
-        builder.append(type.toString());
+        builder.append(type.toString().split(" ")[1]);
         int length = Array.getLength(object);
         builder.append(fieldSeparator).append(length).append(fieldSeparator);
         builder.append(lineSeparator);
@@ -238,7 +239,6 @@ public class Serializer {
         } catch (IllegalAccessException | ClassNotFoundException |
                 InstantiationException | NoSuchMethodException |
                 InvocationTargetException | NoSuchFieldException ignored) {
-            //ignored;
         }
         return obj;
     }
@@ -294,9 +294,7 @@ public class Serializer {
     private Object restoreArrayObject(String objectData) throws ClassNotFoundException {
         String[] lines = objectData.split(lineSeparator);
         String[] metaData = lines[0].split(fieldSeparator);
-
         Class componentType = Class.forName(metaData[1]);
-
         int length = Integer.parseInt(metaData[2]);
         Object array = Array.newInstance(componentType, length);
         if (!componentType.toString().equals("class java.lang.Byte"))
@@ -306,7 +304,7 @@ public class Serializer {
                 Array.set(array, i, value);
             }
         else
-            return metaData[3].getBytes(Constants.CHARSET);
+            return metaData[3].getBytes(CHARSET);
         return array;
     }
 }

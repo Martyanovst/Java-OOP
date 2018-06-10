@@ -3,7 +3,6 @@ package VCS.Server;
 import Abstractions.ICommand;
 import Abstractions.CommandPacket;
 import Utils.Constants;
-import Utils.FileItem;
 
 
 public class ServerResponse extends CommandPacket {

@@ -2,7 +2,6 @@ package Utils.Commands;
 
 import Abstractions.CommandPacket;
 import Abstractions.ICommand;
-import Abstractions.IDataProvider;
 import VCS.Server.FileManager;
 import VCS.Server.ServerResponse;
 
@@ -22,7 +21,7 @@ public class Add implements ICommand {
     public CommandPacket execute(FileManager manager) {
         try {
             manager.provider.createNewDirectory(name);
-            manager.BoundTo(name);
+            manager.boundTo(name);
         } catch (IOException e) {
             return new ServerResponse(false, new Pass(), e.toString());
         }

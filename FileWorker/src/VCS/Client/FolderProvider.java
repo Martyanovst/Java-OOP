@@ -22,17 +22,23 @@ public class FolderProvider implements IDataProvider {
     @Override
     public void createNewDirectory(String path) throws IOException {
         Path directory = Paths.get(path);
-        if (Files.isDirectory(directory))
-            throw new IOException("Directory is already exists");
-        else
             Files.createDirectory(directory);
     }
 
     @Override
-    public void CreateFile(String path, byte[] data) throws IOException {
-        FileOutputStream out = new FileOutputStream(path);
-        out.write(data);
-        out.close();
+    public void createFile(String path, byte[] data) throws IOException {
+        File targetFile = new File(path);
+        File parent = targetFile.getParentFile();
+        if (!parent.exists() && !parent.mkdirs()) {
+            throw new IllegalStateException("Couldn't create dir: " + parent);
+        }
+        if(Files.isDirectory(Paths.get(path))) return;
+        Files.write(Paths.get(path),data);
+    }
+
+    @Override
+    public boolean isDirectory(String path) {
+        return Files.isDirectory(Paths.get(path));
     }
 
 
@@ -50,6 +56,12 @@ public class FolderProvider implements IDataProvider {
     @Override
     public void deleteAllFilesFromDirectory(String path) {
         Arrays.stream(new File(path).listFiles()).forEach(File::delete);
+    }
+
+    @Override
+    public byte[] readFile(String path) throws IOException {
+        if (Files.isDirectory(Paths.get(path))) return new byte[0];
+        return Files.readAllBytes(Paths.get(path));
     }
 
     @Override

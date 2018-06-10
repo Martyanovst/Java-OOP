@@ -1,7 +1,5 @@
 package Abstractions;
 
-import Utils.FileItem;
-
 public abstract class CommandPacket {
     public ICommand command;
     public boolean isSuccess;

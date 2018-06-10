@@ -3,8 +3,8 @@ package VCS.Client;
 import Abstractions.CommandPacket;
 import Abstractions.ICommand;
 import Abstractions.ICommandProvider;
-import Abstractions.IDataProvider;
 import Utils.ClientUtils;
+import VCS.Server.FileManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,12 +16,12 @@ import static Utils.Constants.*;
 
 public class Client {
     private final String name;
-    private IDataProvider provider;
+    private FileManager manager;
     private ICommandProvider commandProvider;
 
-    public Client(String name, IDataProvider provider, ICommandProvider commandProvider) {
+    public Client(String name, FileManager manager, ICommandProvider commandProvider) {
         this.name = name;
-        this.provider = provider;
+        this.manager = manager;
         this.commandProvider = commandProvider;
     }
 
@@ -35,18 +35,18 @@ public class Client {
                     CommandPacket packet = new ClientPacket(command, name);
                     ClientUtils.SendPacket(packet, out);
                     CommandPacket response = ClientUtils.getRequest(in);
-//                    response.command.execute(provider);
+                    response.command.execute(manager);
                     if(response.isSuccess)
-                    provider.log().Success(response.message);
+                    manager.provider.log().Success(response.message);
                     else
-                      provider.log().Error(response.message);
+                      manager.provider.log().Error(response.message);
 
                 }
             } catch (IOException e) {
-                provider.log().Fatal(e.getMessage());
+                manager.provider.log().Fatal(e.getMessage());
             }
         } catch (IOException e) {
-            provider.log().Fatal(e.getMessage());
+            manager.provider.log().Fatal(e.getMessage());
         }
     }
 }

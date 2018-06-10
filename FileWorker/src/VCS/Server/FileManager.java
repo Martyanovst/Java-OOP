@@ -11,12 +11,12 @@ public class FileManager {
     public final IVersionGenerator versionGenerator;
     public FileWorker worker;
 
-    protected FileManager(IDataProvider provider, IVersionGenerator versionGenerator) {
+    public FileManager(IDataProvider provider, IVersionGenerator versionGenerator) {
         this.provider = provider;
         this.versionGenerator = versionGenerator;
     }
 
-    public void BoundTo(String directoryPath) throws FileNotFoundException {
+    public void boundTo(String directoryPath) throws FileNotFoundException {
         worker = new FileWorker(directoryPath);
         worker.setIsRecursive(true);
     }

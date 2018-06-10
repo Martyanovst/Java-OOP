@@ -19,6 +19,24 @@ public class ClientUtils {
         return (CommandPacket) serializer.deserialize(request);
     }
 
+    public static int getEmptyPort() {
+        try {
+            ServerSocket emptySockets = new ServerSocket(0);
+            return emptySockets.getLocalPort();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Constants.RECEIVER_PORT;
+        }
+    }
+
+    public static void sendFile(OutputStream stream, FileItem item){
+        StringBuilder builder = new StringBuilder();
+    }
+
+    public static FileItem ReceiveFile(){
+
+    }
+
     public static ServerSocket getSocketReceiver() throws IOException {
         return new ServerSocket(Constants.RECEIVER_PORT);
     }
