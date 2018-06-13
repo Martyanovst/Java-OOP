@@ -16,7 +16,7 @@ import static Utils.Constants.*;
 
 public class ClientEntryPoint {
     public static void main(String[] args) {
-        ILogger logger = new Logger(System.out);
+        ILogger logger = new Logger(System.out, System.in);
         IDataProvider provider = new FolderProvider(logger);
         ClientInfo client = new ClientInfo(getAddress(HOST));
         FileManager manager = new FileManager(client, provider, new DefaultVersionGenerator());

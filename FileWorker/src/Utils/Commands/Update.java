@@ -3,14 +3,12 @@ package Utils.Commands;
 import Abstractions.CommandPacket;
 import Abstractions.ICommand;
 import FileWorker.FileSender;
-import FileWorker.getCurrentVersion;
+import FileWorker.getVersion;
 import ThreadDispatcher.ThreadDispatcher;
 import VCS.Server.FileManager;
 import VCS.Server.ServerResponse;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 
 public class Update implements ICommand {
 
@@ -27,14 +25,15 @@ public class Update implements ICommand {
     public CommandPacket execute(FileManager manager) {
         try {
             if (manager.repository == null) throw new IOException("You should clone repository before updating");
-            getCurrentVersion operation = new getCurrentVersion(manager);
+            getVersion operation = new getVersion(manager, null);
             manager.worker.execute(operation);
             String[] actualFiles = operation.files.values().toArray(new String[operation.files.size()]);
-            String[] versions = manager.provider.getAllDirectoriesFrom(manager.getRepositoryPath());
-            String version = manager.actualVersion;
+            String version = manager.getActualVersion();
             ThreadDispatcher.getInstance().Add(new FileSender(actualFiles, manager, port, true));
-            ICommand command = new SaveFiles(port, version);
-            return new ServerResponse(true, command, "Files successfully cloned");
+            ICommand command = new SaveFiles(port, version, false);
+            String message = String.format("Update success, your version is %s", version);
+            return new ServerResponse(true, command, message);
+
         } catch (IOException e) {
             return new ServerResponse(false, new Pass(), e.toString());
         }

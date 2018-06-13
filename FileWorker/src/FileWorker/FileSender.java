@@ -26,7 +26,6 @@ public class FileSender extends ThreadedTask {
 
     @Override
     public void run() {
-        if (files.length == 0) return;
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {

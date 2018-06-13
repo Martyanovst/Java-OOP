@@ -19,21 +19,24 @@ public class SaveFiles implements ICommand {
     private String name;
     private int port;
     private String version;
+    private boolean isNeedToDelete;
 
-    public SaveFiles(String path, int flags, String name, int port, String version) {
+    public SaveFiles(String path, int flags, String name, int port, String version, boolean isNeedToDelete) {
         this.path = path;
         this.flags = flags;
         this.name = name;
         this.port = port;
         this.version = version;
+        this.isNeedToDelete = isNeedToDelete;
     }
 
     public SaveFiles() {
     }
 
-    public SaveFiles(int port, String version) {
+    public SaveFiles(int port, String version, boolean isNeedToDelete) {
         this.port = port;
         this.version = version;
+        this.isNeedToDelete = isNeedToDelete;
     }
 
     @Override
@@ -51,7 +54,8 @@ public class SaveFiles implements ICommand {
             manager.boundTo(path);
             manager.repository = name;
         }
-        manager.provider.deleteAllFilesFromDirectory(path);
+        if (isNeedToDelete)
+            manager.provider.deleteAllFilesFromDirectory(path);
         ServerSocket socket = new ServerSocket(port);
         Socket server = socket.accept();
         ZipEntry entry;
@@ -68,7 +72,9 @@ public class SaveFiles implements ICommand {
                 out.close();
             }
         }
-        manager.currentVersion = version;
+        if (version != null)
+            manager.currentVersion = version;
+        else manager.currentVersion = "1.0";
         return null;
     }
 }

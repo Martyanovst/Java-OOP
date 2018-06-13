@@ -30,8 +30,6 @@ public class CreateNewVersion extends ThreadedTask {
             String newVersion;
             try (ZipInputStream stream = new ZipInputStream(in)) {
                 int length = Integer.parseInt(stream.getNextEntry().getName());
-                if (length == 0)
-                    return;
                 boolean isFullCopy = length < manager.provider.getAllFiles(manager.getRepositoryPath()).length;
                 newVersion = manager.versionGenerator.increase(manager.currentVersion, isFullCopy);
                 String path = Paths.get(manager.getRepositoryPath(), newVersion).toString();
@@ -49,6 +47,8 @@ public class CreateNewVersion extends ThreadedTask {
                 }
             }
             manager.currentVersion = newVersion;
+            manager.updateActualVersion(newVersion);
+            manager.provider.log().Info(String.format("NEW COMMIT FROM  %S", manager.client.address.toString()));
         } catch (IOException e) {
             manager.provider.log().Error(e.toString());
         }

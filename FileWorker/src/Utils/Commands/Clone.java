@@ -1,15 +1,14 @@
 package Utils.Commands;
 
+import FileWorker.getVersion;
 import ThreadDispatcher.ThreadDispatcher;
 import Abstractions.ICommand;
 import Abstractions.CommandPacket;
 import FileWorker.FileSender;
-import FileWorker.getCurrentVersion;
 import VCS.Server.FileManager;
 import VCS.Server.ServerResponse;
 
 import java.io.IOException;
-import java.util.Collections;
 
 public class Clone implements ICommand {
     private String path;
@@ -31,15 +30,18 @@ public class Clone implements ICommand {
     @Override
     public CommandPacket execute(FileManager manager) {
         try {
-            getCurrentVersion operation = new getCurrentVersion(manager);
+            getVersion operation = new getVersion(manager, null);
             manager.boundTo(name);
             manager.repository = name;
             manager.worker.execute(operation);
             String[] actualFiles = operation.files.values().toArray(new String[operation.files.size()]);
-            String version = manager.actualVersion;
+            String version = manager.getActualVersion();
+            manager.currentVersion = version;
             ThreadDispatcher.getInstance().Add(new FileSender(actualFiles, manager, clientPort, true));
-            ICommand command = new SaveFiles(path, flags, name, clientPort, version);
-            return new ServerResponse(true, command, "Files successfully cloned");
+            ICommand command = new SaveFiles(path, flags, name, clientPort, version, true);
+            String message = String.format("Clone files success, your version is %s", version);
+            return new ServerResponse(true, command, message);
+
         } catch (IOException e) {
             return new ServerResponse(false, new Pass(), e.toString());
         }
