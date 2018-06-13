@@ -45,7 +45,7 @@ public class Revert implements ICommand {
             manager.currentVersion = version;
             ThreadDispatcher.getInstance().Add(new FileSender(actualFiles, manager, port, true));
             ICommand command = new SaveFiles(port, version, true);
-            String message = String.format("Revert success, your version is %s", version);
+            String message = String.format("Revert success,", manager.currentVersion);
             return new ServerResponse(true, command, message);
         } catch (IOException e) {
             return new ServerResponse(false, new Pass(), e.toString());

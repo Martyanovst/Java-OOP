@@ -1,5 +1,6 @@
 package VCS.Server;
 
+import Utils.FileLogger;
 import VCS.Client.FolderProvider;
 import Utils.Logger;
 
@@ -11,7 +12,7 @@ public class Program {
     public static void main(String[] args) {
         File log = new File("log.txt");
         try {
-            new Server(new FolderProvider(new Logger(log)), 10, new DefaultVersionGenerator()).run();
+            new Server(new FolderProvider(new FileLogger(log)), 10, new DefaultVersionGenerator()).run();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

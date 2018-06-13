@@ -1,6 +1,5 @@
 package Abstractions;
 
-import java.io.IOException;
 
 public interface ILogger {
     void Fatal(String message);
@@ -11,5 +10,5 @@ public interface ILogger {
 
     void Success(String message);
 
-    String getHistory() throws IOException;
+    String getHistory();
 }

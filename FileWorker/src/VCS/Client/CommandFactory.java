@@ -30,11 +30,13 @@ public class CommandFactory {
                 case "revert":
                     if (data.length == 1)
                         return new Revert(null, 1, getEmptyPort());
+                    if (data.length == 2)
+                        return new Revert(null, 0, getEmptyPort());
                     else if (data[2].equals("-hard"))
                         return new Revert(data[1], 1, getEmptyPort());
                     return new Revert(data[1], 0, getEmptyPort());
                 case "log":
-                    if(data.length == 1)
+                    if (data.length == 1)
                         return new Log();
                 default:
                     throw new IllegalArgumentException("incorrect command!");
