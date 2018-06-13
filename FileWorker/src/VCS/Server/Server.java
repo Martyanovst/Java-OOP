@@ -10,7 +10,7 @@ import java.net.Socket;
 
 import static Utils.ClientUtils.getAddress;
 import static Utils.Constants.HOST;
-import static Utils.Constants.PORT;
+import static Utils.Constants.SERVER_PORT;
 
 public class Server {
     private static ThreadDispatcher dispatcher = ThreadDispatcher.getInstance();
@@ -26,10 +26,11 @@ public class Server {
 
     public void run() {
         try {
-            ServerSocket server = new ServerSocket(PORT, clientCount, getAddress(HOST));
+            ServerSocket server = new ServerSocket(SERVER_PORT, clientCount, getAddress(HOST));
             while (true) {
                 Socket socket = server.accept();
-                FileManager manager = new FileManager(provider, versionGenerator);
+                ClientInfo client = new ClientInfo(socket.getInetAddress());
+                FileManager manager = new FileManager(client, provider, versionGenerator);
                 dispatcher.Add(new ProcessClient(socket, manager));
             }
         } catch (IOException e) {

@@ -3,9 +3,7 @@ package VCS.Client;
 import Abstractions.IDataProvider;
 import Abstractions.ILogger;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,8 +20,10 @@ public class FolderProvider implements IDataProvider {
     @Override
     public void createNewDirectory(String path) throws IOException {
         Path directory = Paths.get(path);
-            Files.createDirectory(directory);
+        if(!Files.exists(directory))
+        Files.createDirectory(directory);
     }
+
 
     @Override
     public void createFile(String path, byte[] data) throws IOException {
@@ -32,8 +32,9 @@ public class FolderProvider implements IDataProvider {
         if (!parent.exists() && !parent.mkdirs()) {
             throw new IllegalStateException("Couldn't create dir: " + parent);
         }
-        if(Files.isDirectory(Paths.get(path))) return;
-        Files.write(Paths.get(path),data);
+        if (Files.isDirectory(Paths.get(path))) return;
+        if (data != null)
+            Files.write(Paths.get(path), data);
     }
 
     @Override
@@ -56,6 +57,34 @@ public class FolderProvider implements IDataProvider {
     @Override
     public void deleteAllFilesFromDirectory(String path) {
         Arrays.stream(new File(path).listFiles()).forEach(File::delete);
+    }
+
+    @Override
+    public String[] getAllFiles(String path) throws IOException {
+        if (path == null) throw new IOException("incorrect path");
+        File file = new File(path);
+        File[] files = file.listFiles();
+        int index = 0;
+        String[] result = new String[files.length];
+        for (File f : files)
+            result[index++] = f.getPath();
+//            result[index++] = f.getName();
+        return result;
+    }
+
+    @Override
+    public OutputStream getFileOutputStream(String path) throws IOException {
+        return new FileOutputStream(new File(path));
+    }
+
+    @Override
+    public InputStream getFileInputStream(String path) throws IOException {
+        return new FileInputStream(new File(path));
+    }
+
+    @Override
+    public boolean exists(String path) {
+        return Files.exists(Paths.get(path));
     }
 
     @Override

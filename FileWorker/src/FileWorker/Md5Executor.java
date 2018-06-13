@@ -1,30 +1,38 @@
 package FileWorker;
 
+import Abstractions.IDataProvider;
+
 import java.io.*;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 
 public class Md5Executor implements IExecutable {
 
-    private final File output = new File("md5Hashes.txt");
+    public final HashMap<String, String> hashes = new HashMap<>();
+    private final IDataProvider provider;
     private final Charset charset = Charset.forName("UTF-8");
 
-    @Override
-    public void process(File file) throws IOException {
-        String hash;
-        hash = file.isDirectory() ? getHashOfTheDirectory(file) : getHashOfFile(file);
-        WriteHashToOutputFile(file, hash);
+    public Md5Executor(IDataProvider provider) {
+        this.provider = provider;
     }
 
-    private String getHashOfTheDirectory(File file) throws IOException {
-        File[] files = file.listFiles();
+    @Override
+    public void process(String file) throws IOException {
+        String hash;
+        hash = provider.isDirectory(file) ? getHashOfTheDirectory(file) : getHashOfFile(file);
+        WriteHashToOutput(file, hash);
+    }
+
+    private String getHashOfTheDirectory(String file) throws IOException {
+        String [] files = provider.getAllFiles(file);
         StringBuilder builder = new StringBuilder();
         if (files == null) return "";
-        for (File f : files) {
+        for (String f : files) {
             String hash = getHashOfFile(f);
             builder.append(hash);
-            WriteHashToOutputFile(f, hash);
+            WriteHashToOutput(f, hash);
         }
         return GetHashOfString(builder.toString());
     }
@@ -45,10 +53,10 @@ public class Md5Executor implements IExecutable {
         return hex(m.digest());
     }
 
-    public String getHashOfFile(File file) throws IOException {
+    public String getHashOfFile(String file) throws IOException {
         MessageDigest md = getInstance();
         byte[] buffer = new byte[8192];
-        try (InputStream input = new FileInputStream(file)) {
+        try (InputStream input = provider.getFileInputStream(file)) {
             int numRead;
             do {
                 numRead = input.read(buffer);
@@ -68,12 +76,8 @@ public class Md5Executor implements IExecutable {
         return builder.toString();
     }
 
-    private void WriteHashToOutputFile(File path, String hash) throws IOException {
-        try (FileWriter writer = new FileWriter(output, true);
-             BufferedWriter bufferedWriter = new BufferedWriter(writer);
-             PrintWriter out = new PrintWriter(bufferedWriter)) {
-            out.println(path.getPath() + " : " + hash);
-        }
+    private void WriteHashToOutput(String path, String hash) throws IOException {
+        hashes.put(path, hash);
     }
 }
 

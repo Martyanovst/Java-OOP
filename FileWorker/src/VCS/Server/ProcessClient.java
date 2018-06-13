@@ -8,6 +8,8 @@ import Utils.ClientUtils;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class ProcessClient extends ThreadedTask {
     private final Socket socket;
@@ -30,7 +32,7 @@ public class ProcessClient extends ThreadedTask {
                 fileManager.provider.log().Success(response.message);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            fileManager.provider.log().Fatal(e.toString());
         }
     }
 }

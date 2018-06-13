@@ -1,8 +1,7 @@
 package FileWorker;
 
-import java.io.File;
 import java.io.IOException;
 
 public interface IExecutable {
- void process(File file) throws IOException;
+ void process(String file) throws IOException;
 }

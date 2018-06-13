@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static Utils.Constants.CHARSET;
 import static Utils.Constants.EOF;
@@ -19,9 +22,10 @@ public class ClientUtils {
         return (CommandPacket) serializer.deserialize(request);
     }
 
-    public static int getEmptyPort() {
+    public static synchronized int getEmptyPort() {
         try {
             ServerSocket emptySockets = new ServerSocket(0);
+            emptySockets.close();
             return emptySockets.getLocalPort();
         } catch (IOException e) {
             e.printStackTrace();
@@ -29,13 +33,13 @@ public class ClientUtils {
         }
     }
 
-    public static void sendFile(OutputStream stream, FileItem item){
-        StringBuilder builder = new StringBuilder();
+    public static void sendFile(ZipOutputStream zipStream, FileItem item) throws IOException {
+        ZipEntry entry = new ZipEntry(item.name);
+        zipStream.putNextEntry(entry);
+        zipStream.write(item.data);
+        zipStream.closeEntry();
     }
 
-    public static FileItem ReceiveFile(){
-
-    }
 
     public static ServerSocket getSocketReceiver() throws IOException {
         return new ServerSocket(Constants.RECEIVER_PORT);

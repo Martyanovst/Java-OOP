@@ -8,7 +8,7 @@ import VCS.Server.FileManager;
 public class Pass implements ICommand {
 
     @Override
-    public CommandPacket execute(FileManager provider) {
+    public CommandPacket execute(FileManager manager) {
         return null;
     }
 }

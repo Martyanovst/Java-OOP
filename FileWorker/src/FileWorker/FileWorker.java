@@ -1,25 +1,30 @@
 package FileWorker;
 
-import java.io.File;
+import Abstractions.IDataProvider;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class FileWorker {
     private boolean isRecursive = false;
-    private final File path;
+    private final IDataProvider provider;
+    private final String path;
 
     public boolean getIsRecursive() {
         return isRecursive;
     }
+
     public void setIsRecursive(boolean value) {
         isRecursive = value;
     }
 
-    public FileWorker(String path) throws FileNotFoundException {
-        this.path = new File(path);
-        if (!this.path.exists())
+    public FileWorker(IDataProvider provider, String path) throws IOException {
+        this.provider = provider;
+        this.path = path;
+        if (!provider.exists(path))
             throw new FileNotFoundException("This path doesn't exists");
-        if (!this.path.isDirectory())
+        if (!provider.isDirectory(path))
             throw new FileNotFoundException("This file isn't a directory");
     }
 
@@ -28,18 +33,20 @@ public class FileWorker {
         execute(command, path);
     }
 
-    private void execute(IExecutable command, File path) throws IOException {
-        File[] files = path.listFiles();
+    private void execute(IExecutable command, String path) throws IOException {
+        String[] files = provider.getAllFiles(path);
+        Arrays.sort(files);
+        Collections.reverse(Arrays.asList(files));
         if (files == null) return;
-        for (File file : files) {
-            if (file.isDirectory() && isRecursive)
+        for (String file : files) {
+            if (provider.isDirectory(file) && isRecursive)
                 execute(command, file);
             //if (!file.isDirectory())
-                command.process(file);
+            command.process(file);
         }
     }
 
-    public String getDirectoryName(){
-        return path.getAbsolutePath();
+    public String getDirectoryName() {
+        return path;
     }
 }

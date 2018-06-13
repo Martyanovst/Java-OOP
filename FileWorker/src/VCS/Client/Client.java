@@ -12,7 +12,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import static Utils.ClientUtils.getAddress;
-import static Utils.Constants.*;
+import static Utils.Constants.HOST;
+import static Utils.Constants.SERVER_PORT;
 
 public class Client {
     private final String name;
@@ -27,19 +28,23 @@ public class Client {
 
     public void run() {
         try {
-            Socket client = new Socket(getAddress(HOST), PORT);
+            Socket client = new Socket(getAddress(HOST), SERVER_PORT);
             try (InputStream in = client.getInputStream();
                  OutputStream out = client.getOutputStream()) {
                 while (!client.isClosed()) {
                     ICommand command = commandProvider.readCommand();
                     CommandPacket packet = new ClientPacket(command, name);
                     ClientUtils.SendPacket(packet, out);
-                    CommandPacket response = ClientUtils.getRequest(in);
-                    response.command.execute(manager);
-                    if(response.isSuccess)
-                    manager.provider.log().Success(response.message);
+                    CommandPacket response;
+                    response = ClientUtils.getRequest(in);
+                    if (response.command != null)
+                        response.command.execute(manager);
                     else
-                      manager.provider.log().Error(response.message);
+                        manager.provider.log().Error("Bad server response,maybe your command doesn't valid");
+                    if (response.isSuccess)
+                        manager.provider.log().Success(response.message);
+                    else
+                        manager.provider.log().Error(response.message);
 
                 }
             } catch (IOException e) {
